@@ -1,0 +1,751 @@
+
+<!-- saved from url=(0034)http://ericbeaudry.ca/INF3105/tp3/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ 
+ <title>INF3105 / TP3</title>
+<style type="text/css">
+pre {
+    padding: 5px;
+    background-color: #eeffcc;
+    color: #333333;
+    line-height: 120%;
+    border: 1px solid #aacc99;
+    border-left: 1px solid #aacc99;
+    border-right: 1px solid #aacc99;
+}
+
+.nouveau{
+background-color: rgb(153,255, 153);
+}
+
+</style>
+<style type="text/css"></style></head>
+
+<body>
+<p>
+<b>INF3105 - Structure de données et algorithmes<br>
+Été 2015
+</b>
+</p>
+
+<h1 align="center">Travail pratique #3 : Calcul d'itinéraires à pied et en transport en commun</h1>
+
+<hr>
+
+<h2>1. Objectifs</h2>
+<ul>
+ <li>Utiliser des structures de données d'une bibliothèque normalisée (les <a href="http://en.cppreference.com/w/cpp/container">conteneurs de la librairie standard de C++</a>).</li>
+ <li>Implémenter un type abstrait de données <tt>Carte</tt> basé sur la représentation de graphe.</li>
+ <li>Implémenter un algorithme de recherche de chemin dans un graphe.</li>
+ <li>Adapter cet algorithme pour générer des itinéraires de déplacement en transport en commun.</li>
+</ul>
+
+<h2>2. Problématique</h2>
+<p>
+Vous devez écrire deux programmes C++, nommées <tt>tp3a</tt> et <tt>tp3b</tt>,
+pour calculer des itinéraires de déplacement dans une ville.
+Le programme <tt>tp3a</tt> doit calculer le plus court chemin dans une ville en considérant les tronçons accessibles à la marche seulement.
+Le programme <tt>tp3b</tt> doit calculer l'itinéraire pour arriver le plus tôt possible à un endroit donné en combinant marche et transport en commun.
+Le programme <tt>tp3b</tt> doit considérer l'heure de départ.
+</p>
+
+<h2>3. Structure des programmes</h2>
+<p>
+Pour bien amorcer ce travail, il est fortement recommandé de commencer avec
+le squelette de départ fourni dans <a href="http://ericbeaudry.ca/INF3105/tp3/tp3.zip">tp3.zip</a>.
+Vous pouvez modifier ces fichiers autant que vous le désirez.
+Toutefois, pour la correction automatique, vous devez préserver la syntaxe d'appel du programme et ses formats d'entrée et de sortie.
+</p>
+
+<h3>3.1 Syntaxe d'appel</h3>
+<p> 
+Les programmes <tt>tp3a</tt> et <tt>tp3b</tt> doivent pouvoir être lancés en ligne de commande avec la syntaxe suivante.
+</p>
+<pre>./tp3a carte.txt [requetes.txt]
+./tp3b carte.txt reseau.txt [requetes.txt]
+</pre>
+où :
+<ul>
+  <li>le fichier <tt>carte.txt</tt> spécifie une carte;</li>
+  <li>le fichier <tt>requetes.txt</tt> contient une liste de requêtes (optionnel);</li>
+  <li>le fichier <tt>reseau.txt</tt> spécifie un réseau de transport en commun.
+</li></ul>
+<p>
+Si le fichier de requêtes n'est pas spécifie,
+les programmes <tt>tp3a</tt> et <tt>tp3b</tt> doivent lirent depuis l'entrée standard (<i><tt>stdin</tt></i> au moyen de <tt>std::cin</tt>).
+À noter que le squelette fourni implémente déjà cette fonctionnalité.
+</p>
+<p>
+Les résultats produits par votre programme doivent être écrits dans la sortie standard (<i>stdout</i>) à l'aide du flux de sortie C++ <tt>std::cout</tt>.
+</p>
+
+
+<h3><a name="formatcarte">3.2 Fichier carte</a></h3>
+<p>
+Un fichier <tt>carte.txt</tt> est constitué de :
+</p><ol>
+ <li>Une liste de noeuds (lieux).
+     Un lieu est spécifié par :
+     <ul>
+       <li>un nom (une chaîne de caractères);</li>
+       <li>une coordonnée de la forme (latitude,longitude);</li>
+       <li>un point-virgule (;).</li>
+     </ul>
+ </li>
+ <li>Trois tirets (---) de séparation.</li>
+ <li>Une liste de routes.
+     Une route est spécifiée par : 
+     <ul>
+       <li>un nom de route (une chaîne de caractères);</li>
+       <li>un deux-points (:);</li>
+       <li>une liste de noms de noeud;</li>
+       <li>un point-virgule (;).</li>
+     </ul>
+ </li>
+</ol>
+<p></p>
+
+<p>
+À titre d'exemple, voici le fichier (<a href="http://ericbeaudry.ca/INF3105/tp3/uqam-carte.txt">uqam-carte.txt</a>) :
+</p>
+
+<blockquote>
+<pre>n1 (45.508377,-73.568755);
+n2 (45.508662,-73.569259);
+n3 (45.509128,-73.570289);
+n4 (45.509331,-73.570793);
+n5 (45.509944,-73.57056);
+n6 (45.510452,-73.570348);
+n7 (45.511113,-73.570010);
+n8 (45.510579,-73.568894);
+n9 (45.510106,-73.567939);
+n10 (45.509910,-73.567435);
+n11 (45.509346,-73.567929);
+n12 (45.510004,-73.569399);
+n13 (45.509561,-73.568428);
+n14 (45.509497,-73.568256);
+n15 (45.509474,-73.569881);
+n16 (45.509523,-73.569694);
+n17 (45.509636,-73.569715);
+n18 (45.509741,-73.569656);
+n19 (45.508940,-73.569045);
+n20 (45.509170,-73.569173);
+---
+Jeanne-Mance : n1 n2 n3 n4 ;
+Sherbrooke : n4 n5 n6 n7 ;
+Saint-Urbain : n7 n8 n9 n10 ;
+President-Kennedy : n10 n11 n1 ;
+Grands-Batisseurs : n6 n12 n13 n14 n11 ;
+UQAM1 : n3 n15 n16 n17 n18 n12 n8 ;
+UQAM2 : n2 n19 n14 ;
+UQAM3 : n9 n13 ;
+UQAM4 : n19 n20 ;
+</pre>
+</blockquote>
+<p>Et voici la carte correspondante :</p>
+<blockquote>
+<img src="./INF3105 _ TP3_files/uqam-carte.png">
+</blockquote>
+
+<p>
+Remarque: dans le TP3, les sens uniques ne sont pas considérés, car on peut marcher à sens inverse.
+Donc, lorsqu'une route est spécifiée, vous devez supposer qu'elle est bidirectionnelle.
+</p>
+
+<h3>3.3 Fichier réseau</h3>
+<p>
+Un fichier <tt>reseau.txt</tt> est constitué de :
+</p><ol>
+ <li>Une liste de circuits (correspond au fichier <i>routes.txt</i> du format <a href="http://developers.google.com/transit/gtfs/">GTFS</a>).
+     Un circuit est spécifiée par :
+     <ul>
+       <li>un numéro d'identification unique (entier);</li>
+       <li>un nom sans espace décrivant le circuit.</li>
+     </ul>
+ </li>
+ <li>Trois tirets (---) de séparation.</li>
+ <li>Une liste de stations de métro et d'arrêts d'autobus (correspond au fichier <i>stops.txt</i> du format GTFS).
+     Dans le texte qui suit, le mot arrêt désigne autant un arrêt d'autobus qu'une station de métro.
+     Un arrêt est spécifié par : 
+     <ul>
+       <li>un numéro d'identification unique (entier);</li>
+       <li>une coordonnée (latitude, longitude);</li>
+       <li>un nom sans espace.</li>
+     </ul>
+ </li>
+ <li>Trois tirets (---) de séparation.</li>
+ <li>Une liste de parcours de trains et d'autobus (correspond aux fichiers <i>trips.txt</i> et <i>stop_times.txt</i> du format GTFS).
+     Un horaire d'un véhicule est spécifiée par : 
+     <ul>
+       <li>un numéro d'identification unique (entier);</li>
+       <li>une destination (une chaîne de caractère);</li>
+       <li>une séquence d'étapes du trajet au format <tt>#id_arret1 @heure1 #id_arret2 @heure2 ... #id_arretN @heureN ; </tt></li>
+     </ul>
+ </li>
+</ol>
+
+<p>
+Les temps de passage sont dans un format <tt>08h15m00s</tt>.
+</p>
+
+<p>
+À titre d'exemple, voici le fichier (<a href="http://ericbeaudry.ca/INF3105/tp3/uqam-reseau.txt">uqam-reseau.txt</a>) :
+</p>
+
+<blockquote>
+<pre>1       Ligne1
+---
+1       (45.51038074986067,-73.57031106948853)  a1
+2       (45.50995219064958,-73.5693883895874)   a2
+3       (45.50960257413948,-73.5684871673584)   a3
+4       (45.50945596011797,-73.56828331947327)  a4
+---
+1       PK
+        #1      @8h15m15s       #2      @8h15m20s       #3      @8h15m25s       #4      @8h15m30s       ;
+1       PK
+        #1      @8h16m15s       #2      @8h16m20s       #3      @8h16m25s       #4      @8h16m30s       ;
+1       PK
+        #1      @8h17m15s       #2      @8h17m20s       #3      @8h17m25s       #4      @8h17m30s       ;
+1       PK
+        #1      @8h18m15s       #2      @8h18m20s       #3      @8h18m25s       #4      @8h18m30s       ;
+1       PK
+        #1      @8h19m15s       #2      @8h19m20s       #3      @8h19m25s       #4      @8h19m30s       ;
+</pre>
+</blockquote>
+<p>Ce réseau est présenté sur la carte plus haut.</p>
+
+<h3>3.4 Fichier de requêtes</h3>
+<p>
+Chaque requête est spécifiée sur une seule ligne.
+Une requête est spécifiée par l'heure de départ, la coordonnée d'origine et la coordonnée de destination.
+</p>
+<p>
+À titre d'exemple, voici le fichier <a href="http://ericbeaudry.ca/INF3105/tp3/uqam-req0.txt">uqam-req0.txt</a> contenant une seule requête.
+</p>
+<blockquote>
+<pre>8h15m00s	(45.51106117488719,-73.56992483139038)	(45.50916273092926,-73.56922745704651)
+</pre>
+</blockquote>
+<p>
+À noter que l'heure de départ est utile uniquement pour le programme <tt>tp3b</tt>.
+L'heure de départ peut être ignorée par le programme <tt>tp3a</tt>.
+</p>
+
+<h3>3.5 Connexion des coordonnées des requêtes et des arrêts aux nœuds de la carte</h3>
+<p>
+Les coordonnées des requêtes (origine et destination) et celles des arrêts d'autobus et de métro peuvent ne pas correspondre aux nœuds du fichier carte.
+Pour ces coordonnées, on suppose qu'il existe un chemin en ligne droite vers le nœud le plus près dans la carte.
+La coordonnée de chaque arrêt d'autobus et de métro doit être ajoutée dans la carte et être connectée au nœud le plus proche de la carte d'origine.
+Présumez que le nom des chemins reliant un arrêt à un nœud de la carte est «--» (deux tirets).
+Chaque coordonné de requête est supposée être connectée au nœud le plus proche de la carte (cela inclut les arrêts ajoutés).
+</p>
+<p>
+Exemples dans uqam-carte.txt et uqam-reseau.txt :
+</p><ul>
+<li>
+On suppose qu'il y a des chemins entre l'arrêt a1 et le nœud n6, entre l'arrêt a2 et le nœud n12, etc.
+</li>
+<li>
+La coordonnée d'origine de la première requête du fichier <a href="http://ericbeaudry.ca/INF3105/tp3/uqam-req0.txt">uqam-req0.txt</a> (45.51106117488719,-73.56992483139038)
+ne correspond à aucun noeud dans la carte <a href="http://ericbeaudry.ca/INF3105/tp3/uqam-carte.txt">uqam-carte.txt</a>.
+On suppose qu'on peut marcher de l'origine jusqu'à n7.
+</li>
+</ul>
+
+<h3>3.6 Format de sortie pour tp3a</h3>
+<p>
+Le programme <tt>tp3a</tt> doit afficher pour <b>chaque</b> requête :
+</p><ol>
+  <li>sur la première ligne, la séquence de nœuds du chemin le plus court reliant l'origine et la destination;</li>
+  <li>sur la deuxième ligne, la liste des noms de route à emprunter (boni).</li>
+  <li>sur la troisième ligne, la longueur de chemin en mètres, arrondie à l'unité près, suivi de la chaîne " m".</li>
+</ol>
+Si vous ne faites pas le boni, la deuxième ligne peut être vide (<tt>\n</tt>) ou contenir un point d'interrogation (<tt>?</tt>).
+<p></p>
+<p>
+Pour des fins de développement et de débogage, le squelette <tt>tp3a.cpp</tt> affiche des lignes commençant par <tt>#</tt> (dièse).
+Ces lignes peuvent ne pas être affichées et être retirées de la version finale.
+Le script de correction ignorera les lignes commençant par <tt>#</tt> (dièse).
+</p>
+<p>
+Exemple:
+</p>
+<blockquote>
+<pre><u>$ ./tp3a uqam-carte.txt uqam-req0.txt</u>
+#Noeud le plus près de l'origine dans la carte : n7
+#Noeud le plus près de la destination dans la carte : n20
+#Chemin de n7 à n20 :
+#n7 n6 n12 n13 n14 n19 n20 
+#Sherbrooke Grands-Batisseurs UQAM2 UQAM4 
+#387 m
+#Chemin de (45.5111,-73.5699) à (45.5092,-73.5692) :
+<b>n7 n6 n12 n13 n14 n19 n20 
+Sherbrooke Grands-Batisseurs UQAM2 UQAM4 
+401 m</b>
+</pre>
+</blockquote>
+<p>Seul les lignes en <b>gras</b> sont requises.</p>
+<p>
+À noter que seule la longueur totale doit être arrondie avant l'affichage.
+Les parcours intermédiaires ne doivent pas être arrondis.
+Utilisez la <a href="http://en.cppreference.com/w/c/numeric/math/round">fonction <tt>round</tt></a>.
+</p>
+
+<h3>3.7 Hypothèse pour tp3b</h3>
+
+<p>
+Le programme <tt>tp3b</tt> doit supposer une vitesse de marche de un mètre par seconde (1 m/s).
+La durée de marche de chaque segment de route doit être arrondie à la seconde entière supérieure à l'aide de la <a href="http://en.cppreference.com/w/c/numeric/math/ceil">fonction <tt>ceil</tt></a>.
+</p>
+
+<h3>3.8 Format de sortie</h3>
+<p>
+Le programme <tt>tp3b</tt> doit afficher pour <b>chaque</b> requête :
+</p><ol>
+  <li>sur la première ligne, la séquence de nœuds et d'arrêts du chemin le plus rapide reliant l'origine et la destination;</li>
+  <li>sur la deuxième ligne, la liste des étapes de l'itinéraire (boni);</li>
+  <ul>
+    <li>une étape est formée du nom de lieu (nœud ou arrêt), de l'heure et de l'instruction (nom de route ou numéro de circuit à utiliser);</li>
+    <li>le nœud final n'a pas d'instruction;</li>
+  </ul>
+  <li>sur la troisième ligne, l'heure d'arrivée à destination.</li>
+</ol>
+Si vous ne faite pas le boni, la deuxième ligne peut être vide (<tt>\n</tt>) ou contenir un point d'interrogation (<tt>?</tt>).
+<p></p>
+<p>
+De la même façon que pour le programme <tt>tp3a</tt>, le script de correction ignorera les lignes commençant par <tt>#</tt> (dièse).
+</p>
+<p>
+Exemple:
+</p>
+<blockquote>
+<pre><u>$ ./tp3b uqam-carte.txt uqam-reseau.txt uqam-req0.txt</u>
+#Noeud le plus près de l'origine dans la carte : n7
+#Noeud le plus près de la destination dans la carte : n20
+#Chemin de n7 à n20 :
+#n7 n6 a1 a2 a3 a4 n14 n19 n20 
+#n7 08h15m00s Sherbrooke n6 08h16m19s -- a1 08h16m28s #1 a2 08h17m20s #1 a3 08h17m25s #1 a4 08h17m30s -- n14 08h17m36s UQAM2 n19 08h19m04s UQAM4 n20 08h19m32s 
+#08h19m32s
+#Chemin de (45.5111,-73.5699) à (45.5092,-73.5692) :
+<b>n7 n6 a1 a2 a3 a4 n14 n19 n20 
+n7 08h15m09s Sherbrooke n6 08h16m28s -- a1 08h16m37s #1 a2 08h17m20s #1 a3 08h17m25s #1 a4 08h17m30s -- n14 08h17m36s UQAM2 n19 08h19m04s UQAM4 n20 08h19m32s 
+08h19m37s</b>
+</pre>
+</blockquote>
+
+<h3>3.9 Étapes recommandées</h3>
+<p>
+Il est recommandé de procéder dans l'ordre des fonctions dans <tt>carte.cpp</tt>.
+Des indices supplémentaires seront donnés en classe.
+</p>
+
+
+<h2>4. Contraintes</h2>
+<h3>4.1 Librairie standard C++ obligatoire</h3>
+Contrairement aux <a href="http://ericbeaudry.ca/INF3105/tp1">TP1</a> et <a href="http://ericbeaudry.ca/INF3105/tp2">TP2</a>, <b>vous devez maintenant utiliser, autant que possible,
+les conteneurs de la librairie standard de C++ (<i>Standard Template Library</i>)</b>.
+Cette contrainte vise à mettre en pratique l'utilisation d'une bibliothèque normalisée.
+Évidemment, vous pouvez créer vos propres structures lorsque justifié.
+<p></p>
+
+<h3>4.2 Environnement de développement</h3>
+<p>
+Relisez les <a href="http://ericbeaudry.ca/INF3105/politiques/">Politiques et les directives sur les outils informatiques dans le cours INF3105</a>.
+</p>
+
+<h3>4.3 Taille des équipes</h3>
+<p>
+Vous pouvez faire ce travail en équipe de 1 ou 2.
+<b>
+Toutefois, tous les membres de l'équipe doivent contribuer à l'ensemble du travail et non à seulement quelques parties.
+Le travail d'équipe vise à favoriser les discussions et l'entraide.
+Le travail d'équipe ne vise pas à réduire la tâche.
+Ainsi, se diviser la tâche en deux n'est pas une méthode de travail d'équipe appropriée dans ce cours.
+Tous les membres de l'équipe doivent être en mesure de comprendre et d'expliquer l'ensemble du travail.
+La participation inadéquate d'une étudiante ou d'un étudiant peut être considérée comme du plagiat.
+</b>
+Le professeur et le correcteur pourront sélectionner quelques équipes au hasard afin de vérifier que tous les membres sont capables d'expliquer l'ensemble du travail.
+</p>
+
+<h2>5. Interface graphique</h2>
+<p>
+Pour vous aider à développer et à valider vos programmes, une visionneuse est fournie avec dans tp3.zip (VisionneuseTP3.jar).
+</p>
+
+<img src="./INF3105 _ TP3_files/visionneuse.png">
+
+<h4>Utilisation:</h4>
+<ul>
+<li>Commande pour lancer la visionneuse :
+  <pre>java -jar VisionneuseTP3.jar</pre>
+ </li>
+ <li>Par défaut, la visionneuse tente de charger :
+   <ul>
+     <li>la carte depuis le premier fichier existant dans la séquence : "uqam-carte.txt", "montreal-carte.txt", "montreal.osm", "carte.txt".</li>
+     <li>le réseau depuis le premier fichier existant dans la séquence : "uqam-reseau.txt", "montreal-stm.txt", "reseau.txt".</li>
+   </ul>
+ </li>
+<li>
+Pour charger une carte et un réseau spécifiques, il suffit d'ajouter les noms de fichier.
+La visionneuse supporte des fichiers carte en format <tt>.txt</tt> ou <tt>.osm</tt> (XML).
+Exemples :
+<pre>java -jar VisionneuseTP3.jar uqam-carte.txt uqam-reseau.txt
+java -jar VisionneuseTP3.jar montreal-carte.txt montreal-stm.txt
+java -jar VisionneuseTP3.jar montreal-carte.osm montreal-stm.txt
+</pre>
+</li>
+<li>Pour ajouter les points d'origine et de destination, il suffit de double cliquer sur la carte.</li>
+<li>Le bouton <b>Réinit.</b> permet d'effacer les points d'origine et de destination sur la carte.</li>
+<li>Le bouton <b>&gt;&gt;requete.txt</b> permet de générer un fichier <tt>requete.txt</tt> après avoir choisi les points d'origine et de destination.</li>
+<!-- <li>Le bouton <b>Éditer Requête</b> permet de saisir une requête. Exemple : <tt>(-73.568530, 45.509722) (-73.579945, 45.510113)</tt>.</li> -->
+<li>Le bouton <b>./tp3a</b> permet de tester votre programme <tt>tp3a</tt> ou <tt>tp3a.exe</tt>.
+</li><li>Le bouton <b>./tp3b</b> permet de tester votre programme <tt>tp3b</tt> ou <tt>tp3b.exe</tt>.
+ <ul>
+  <li>Les programmes <tt>tp3a</tt> et <tt>tp3b</tt> doivent être dans le répertoire courant.</li>
+  <li>La commande <tt>./tp3[ab]</tt> est exécutée avec comme paramètres la carte et le réseau chargé.</li>
+  <li>La visionneuse écrit une ligne dans l'entrée standard de processus de <tt>tp3[ab]</tt>.</li>
+  <li>La visionneuse lit trois lignes depuis la sortie standard de processus de <tt>tp3[ab]</tt>.</li>
+  <li>Le résultat est affiché dans la visionneuse. Les chemins de marche sont montrés en bleu. Le chemin en autobus/métro est montré en vert.</li>
+  <li>Limitations : la visionneuse ne vérifie pas la validité et l'optimalité de la solution générée.</li>
+ </ul>
+</li>
+<li>Les cases à cocher <b>./tp3[ab] en continue</b> permettent de garder le programme en mémoire et exécuter une succession de requêtes.
+Cela permet d'éviter de recharger la carte et le réseau à chaque requête.
+</li></ul>
+
+
+<h2>6. Tests</h2>
+<p>
+À venir...
+</p>
+<!--
+La carte de Montréal et le réseau de STM sont disponibles dans : 
+<ul>
+ <li><a href="montreal.zip">montreal.zip</a> (4,2 Mio)</li>
+ <li><a href="montreal.tar.bz2">montreal.tar.bz2</a> (3,3 Mio)</li>
+</ul>
+</p>
+<p>
+D'autres tests supplémentaires sont disponibles dans <a href="tests.zip">tests.zip</a>.
+Les fichiers résultats sont dans dans <a href="tests-resultats.zip">tests-resultats.zip</a>.
+</p>
+
+<h3>6.1 Autoévaluation sur malt.labunix.uqam.ca</h3>
+<p>
+Vous pouvez lancer le script <tt>/home/inf3105/tp3/evaluer.sh</tt> sous <tt>malt.labunix.uqam.ca</tt> pour vérifier le bon fonctionnement de votre programme et évaluer ses performances.
+Ce script doit être lancé depuis le répertoire contenant vos exécutables tp3a et tp3b.
+Exemple :
+</p>
+<pre>
+<u>/home/inf3105/tp3/evaluer.sh</u>
+Évaluation du TP3 d'INF3105...
+[...]
+Machine :  <b>malt</b> .
+[...]
+Test	Requêtes	CPU_A	Mém_A	ValA	OptA	CPU_B	Mém_B	ValB	OptB
+uqam-req0.txt	1	0.00	5200	1	1	0.00	5392	1	1
+uqam-req1.txt	10	0.00	5232	10	10	0.00	5408	10	10
+uqam-req2.txt	50	0.00	5312	50	50	0.00	5472	50	50
+uqam-req3.txt	100	0.00	5328	100	100	0.00	5504	100	100
+uqam-req4.txt	500	0.01	5312	500	500	0.03	5488	500	500
+uqam-req5.txt	1000	0.03	5328	1000	1000	0.06	5504	1000	1000
+uqam-req6.txt	2000	0.03	5312	2000	2000	0.04	5504	2000	2000
+uqam-req7.txt	3000	0.05	5328	3000	3000	0.08	5488	3000	3000
+uqam-req8.txt	4000	0.12	5312	4000	4000	0.17	5504	4000	4000
+uqam-req9.txt	5000	0.13	5312	5000	5000	0.21	5488	5000	5000
+montreal-req0.txt	1	0.50	150688	1	1	126.23	385840	1	1
+montreal-req1.txt	10	1.33	148224	10	10	131.56	389760	10	10
+montreal-req2.txt	50	3.97	145344	50	50	132.57	387856	50	50
+montreal-req3.txt	100	8.18	149904	100	100	139.62	389904	100	100
+montreal-req4.txt	500	36.13	145584	500	500	176.33	391376	500	500
+montreal-req5.txt	1000	69.23	145168	1000	1000	229.15	385344	1000	1000
+montreal-req6.txt	2000	142.69	148096	2000	2000	315.17	391488	2000	2000
+montreal-req7.txt       3000    215.93  149488  3000    3000    425.57  384880  3000    3000
+montreal-req8.txt       4000    290.26  149120  4000    4000    512.66  390672  4000    4000
+montreal-req9.txt       5000    351.06  145008  5000    5000    605.43  384848  5000    5000
+</pre>
+<p>
+Description des colonnes :
+<ul>
+  <li>Requêtes : nombre de requêtes dans le fichier tests.</li>
+  <li>CPU_X : temps CPU en secondes consommé par tp3x (partie X).</li>
+  <li>Mém_X : quantité de mémoire résidente consommée par tp3x (partie X).</li>
+  <li>ValX : nombre de chemins / itinéraires valides pour la partie X.</li>
+  <li>OptX : nombre de chemins / itinéraires optimales pour la partie X.</li>
+</ul>
+</p>
+<p>
+Notez que la présente version du valideur vérifie uniquement : (1) la validité du chemin (liste de nœuds) et
+(2) la correspondance de la distance calculée (partie A) ou de l'heure d'arrivée (partie B) avec la solution optimale.
+Les instructions (les deuxièmes lignes) ne sont présentement pas validées.
+Puisque le valideur contient la solution, son code source ne peut être disponible.
+</p>
+
+<p>
+Pour identifier quelles sont les requêtes qui n'ont pas fonctionné,
+vous pouvez utiliser l'option <tt>-v</tt> du valideur.
+Exemple :
+</p>
+<pre>
+/home/inf3105/tp3/valideur -v /home/inf3105/tp3/uqam-carte.txt /home/inf3105/tp3/uqam-reseau.txt /home/inf3105/tp3/uqam-req2.txt uqam-req2.txt.resultatA uqam-req2.txt.resultatB
+Requête #25 / partie B / itinéraire invalide!
+Requête #25 / partie B / itinéraire non optimale!
+50    50    49    49    /50
+</pre>
+-->
+
+<h2>7. Remise</h2>
+<p>
+Vous devez remettre le TP3 <b>au plus tard le vendredi 7 août 2015 à <u>15h00</u></b>.
+Notez qu'il s'agit d'une échéance ferme ne pouvant pas être reportée.
+</p>
+
+<h3>7.1 Remise papier</h3>
+À venir...
+<!--
+<p>
+La partie papier est constituée de:
+</p>
+<ol>
+<li><b>Une page de présentation optionnelle.</b>
+Si vous n'avez pas de page de présentation, indiquez clairement vos noms et codes permanents sur la première page.
+</li>
+<li>
+<b>Une autoévaluation</b> indiquant si votre programme fonctionne correctement.
+<ul>
+  <li>S'il fonctionne correctement, montrez une trace d'exécution avec au moins un fichier test.</li>
+  <li>Sinon, indiquez clairement ce qui fonctionne et ce qui ne fonctionne pas.
+      Idéalement, démontrez les parties qui fonctionnent correctement.
+  </li>
+</ul>
+</li>
+
+<li><b>Un tableau montrant les temps d'exécution sur les fichiers tests fournis.</b>
+<ul>
+  <li>Si un test prend plus de 60 secondes, vous pouvez l'arrêter (<tt>[Ctrl]+[C]</tt>) et simplement écrire <b>&gt;60</b> dans votre rapport.
+  </li>
+  <li>Vous pouvez générer un rapport automatiquement en lançant la commande <tt>/home/inf3105/tp3/evaluer.sh</tt> sur <tt>rayon[12]</tt> ou <tt>malt</tt> à partir du répertoire où vous avez compilé votre exécutable <tt>tp3</tt>.
+</li></ul>
+</li>
+<!--
+<li><b>Une analyse de la complexité temporelle des commandes <b>service</b> et <b>qui</b>.</b>
+<ul>
+  <li>Donnez la complexité temporelle en notation grand O, avec une justification.</li>
+  <li>Exprimez la complexité temporelle en fonction des variables pertinentes (indice : la taille du problème).</li>
+</ul>
+</li>
+-->
+<!--
+<li><b>Code source.</b>
+Imprimez le code source complet de votre programme.
+Pour réduire la consommation de papier, vous pouvez imprimer dans un format recto-verso et 2 pages par côté de feuille (4 pages / feuille).
+</li>
+</ol>
+-->
+<!--
+<p>
+Voici <a href="exemple_rapport.html">un exemple de rapport</a>.
+</p>
+
+<p>
+Vous pouvez remettre la partie papier sur des feuilles brochées au début d'un cours.
+</p>
+<p>
+Vous pouvez aussi remettre la partie papier dans la chute à courrier tout juste à côté du PK-4151.
+</p>
+
+<p>
+Les correcteurs vous feront des commentaires constructifs sur la partie papier.
+Celle-ci vous sera remise après la correction.
+</p>
+-->
+
+<h3>7.2 Remise électronique</h3>
+<p>
+Vous devez remettre tous vos fichiers sources, incluant un fichier Makefile, via <a href="http://oto.uqam.ca/">le système Oto</a>.
+</p>
+<p>
+ Avant de soumettre votre travail, il est fortement conseillé de le vérifier sur rayon1, rayon2 ou zeta. Exemple :
+</p><blockquote><pre>oto verifier_tp beaudry_er INF3105-TP3 Makefile *.h* *.c*
+</pre></blockquote>
+<p></p>
+
+<p>
+Exemple de commande pour remettre votre travail :
+</p><blockquote><pre>oto rendre_tp beaudry_er INF3105-TP3 CODE00000001,CODE00000002 Makefile *.h* *.c*
+</pre></blockquote>
+<p></p>
+
+<p>
+Exemple de commande pour obtenir une confirmation de remise:
+</p><blockquote><pre>oto confirmer_remise beaudry_er INF3105-TP3 CODE00000001,CODE00000002
+</pre></blockquote>
+<p></p>
+
+<p>
+Vous pouvez aussi utiliser l'<a href="http://oto.uqam.ca/">application Web d'Oto</a>.
+À noter que la vérification peut ne pas fonctionner correctement via l'application Web.
+</p>
+
+
+<h2>8. Évaluation</h2>
+<p>
+Ce travail pratique vaut 15% de la note finale.
+</p>
+<h3>8.1 Grille de correction</h3>
+
+<table border="1" cellpadding="2" cellspacing="1">
+ <tbody><tr bgcolor="#ccddff" valign="top">
+  <td><b>Critère</b></td>
+  <td><b>Description</b></td>
+  <td><b>Pondération</b></td>
+ </tr>
+ 
+ <tr valign="top">
+  <td>A.</td>
+  <td><b>Respect des directives pour la remise.</b>
+   <ul>
+      <li>Fichiers sources seulement (Makefile, .h, .cpp). 
+          Aucun fichier source manquant.
+          Aucun fichier intermédiaire (.o, .obj, .gch, etc.) ou exécutable (tp3[ab], tp3[ab].exe).
+          Aucun fichier test.</li>
+      <li>Remise par Oto.
+          Pas de remise par courriel.</li>
+      <li>Compilable avec <tt>make</tt> sans modifications.</li>
+      <li>Exécutable sans modification.</li>
+    </ul>
+  </td>
+  <td align="center">/ 1</td>
+ </tr> 
+ 
+ <tr valign="top">
+  <td>B.</td>
+  <td><b>Appréciation générale.</b>
+   <ul>
+      <li>Structure du programme.</li>
+      <ul>
+        <li>Découpage du programme (tout n'est pas dans la fonction <tt>main</tt>).</li>
+        <li>Justesse des types et des structures de données.</li>
+        <li>Classes et fonctions.</li>
+        <li>Usage du mot clé <tt>const</tt>.</li>
+        <li>Usage des références et des pointeurs.</li>
+      </ul>
+      <li>Qualité du code.</li>
+      <ul>
+        <li>Nomination des identificateurs (noms significatifs), lisibilité du code, etc.</li>
+        <li>Présence et pertinence des commentaires; etc.</li>
+      </ul>
+      <li>Encapsulation.</li>
+      <ul>
+        <li>Respect des principes de l'abstraction;
+        </li><li>Cachez le maximum de la représentation des objets en
+          rendant un maximum d'attributs privés;</li>
+        <li>Évitez autant que possible les bris d'abstraction, comme des <i>getters</i>
+          et <i>setters</i> qui retournent ou affectent directement des attributs d'un type abstrait de donnée.
+          Par exemple, les fonctions <tt>getX()</tt> et <tt>getY()</tt> ne devraient pas exister dans une classe <tt>Point</tt>.
+          Mais, une fonction <tt>getNom()</tt>dans une classe <tt>Station</tt> peut être justifiée.
+          La représentation d'une classe <tt>Date</tt> devrait être privée.
+          Une structure ou classe <tt>Intervalle</tt> peut avoir deux attributs publics <tt>debut</tt> et <tt>fin</tt>.
+        </li>
+        <li>Utilisation appropriée des modificateurs d'accès <tt>public</tt>, <tt>protected</tt> et <tt>private</tt>,
+          et du mot clé <tt>friend</tt>, etc.</li>
+      </ul>
+      <li>Gestion de la mémoire.</li>
+      <ul>
+        <li>Toute la mémoire allouée dynamiquement doit être correctement libérée au moment approprié et avant la fin de la fonction <tt>main</tt>.</li>
+      </ul>
+    </ul>  
+  </td>
+  <td align="center">/ 2</td>
+ </tr>
+ 
+ <tr valign="top">
+  <td>C.</td>
+  <td><b>Fonctionnement correct de la partie A (tp3a).</b><br>
+  </td>
+  <td align="center">/ 6</td>
+ </tr>
+ 
+ <tr valign="top">
+  <td>D.</td>
+  <td><b>Efficacité raisonnable pour la partie A (tp3a).</b>
+  <p>Tous les points sont accordés dès que les temps d'exécution ne dépassent pas le double de ceux d'une solution raisonnable (ces temps seront fournis).
+  </p>
+  </td>
+  <td align="center">/ 2</td>
+ </tr>
+
+ <tr valign="top">
+  <td>E.</td>
+  <td><b>Fonctionnement correct de la partie B (tp3b).</b><br>
+  </td>
+  <td align="center">/ 4</td>
+ </tr>
+
+ <!--
+ <tr valign="top">
+  <td>E.</td>
+  <td><b>Analyse de la complexité temporelle des commandes service et qui.</b>
+   <ul>
+      <li>Identification des facteurs affectant le temps d'exécution.</li>
+      <li>Complexité temporelle en notation grand O et justification.</li>
+    </ul>
+  </td>
+  <td align="center">/ 2</td>
+ </tr>
+-->
+
+ <tr bgcolor="#ccddff" valign="top">
+  <td>&nbsp;</td>
+  <td align="right">Total : </td>
+  <td align="center">/ 15</td>
+ </tr>
+ <tr valign="top">
+  <td>F.</td>
+  <td><p><b>Boni : Affichage des routes à emprunter pour la partie A (deuxième ligne de la sortie tp3a).</b></p>
+  </td>
+  <td align="center">+ 1</td>
+ </tr> 
+ <tr valign="top">
+  <td>G.</td>
+  <td><p><b>Boni : Affichage des instructions d'itinéraire pour la partie B (deuxième ligne de la sortie tp3b).</b></p>
+  </td>
+  <td align="center">+ 1</td>
+ </tr> 
+ <tr bgcolor="#ccddff" valign="top">
+  <td>&nbsp;</td>
+  <td align="right">Note maximale : </td>
+  <td align="center">17 / 15</td>
+ </tr>
+</tbody></table>
+
+<p>
+Pour les cas problématiques,
+jusqu'à 2 points peuvent être retranchés pour la qualité de la langue et de la présentation.
+</p>
+
+
+<h2>9. Crédits et licences</h2>
+<ul>
+<li>
+Les données des cartes fournies sont extraites d'<a href="http://www.openstreetmap.org/">OpenStreetMap</a> et sont régies par la <a href="http://opendatacommons.org/licenses/odbl/1.0/">licence <i>Open Database License (ODbL) v1.0</i></a>.
+</li>
+<li>
+Les données du réseaux de la <a href="http://www.stm.info/">Société de transport de Montréal (STM)</a> proviennent de la STM et ont été téléchargées depuis <a href="http://www.stm.info/fr/a-propos/developpeurs">http://www.stm.info/fr/a-propos/developpeurs</a>.
+</li>
+<li>
+Une partie du code source de la visionneuse provient du projet <a href="http://wiki.openstreetmap.org/wiki/JMapViewer">JMapViewer</a>.
+</li>
+<li>
+Les tuiles (images) des cartes proviennent d'<a href="http://www.openstreetmap.org/">OpenStreetMap</a> et sont distribuées sous la <a href="http://creativecommons.org/licenses/by-sa/2.0/">licence <i>Creative Commons</i> paternité – partage à l’identique 2.0</a> (CC-BY-SA).
+</li>
+</ul>
+
+<hr size="2" width="100%">
+<div align="center">
+© Éric Beaudry 2013. Tous droits réservés.
+</div>
+
+
+
+</body></html>

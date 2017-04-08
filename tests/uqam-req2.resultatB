@@ -1,0 +1,150 @@
+n12 a2 
+n12 08h13m06s -- a2 08h13m12s 
+08h13m29s
+n12 n18 
+n12 08h15m11s UQAM1 n18 08h15m47s 
+08h16m22s
+a1 a2 n12 
+a1 08h16m12s #1 a2 08h16m20s -- n12 08h16m26s 
+08h17m11s
+a3 
+a3 08h15m27s 
+08h15m46s
+a2 n12 n18 n17 
+a2 08h17m30s -- n12 08h17m36s UQAM1 n18 08h18m12s UQAM1 n17 08h18m25s 
+08h18m30s
+a1 a2 n12 n18 
+a1 08h14m40s #1 a2 08h15m20s -- n12 08h15m26s UQAM1 n18 08h16m02s 
+08h16m34s
+a2 n12 n8 
+a2 08h18m16s -- n12 08h18m22s UQAM1 n8 08h19m38s 
+08h20m26s
+a1 a2 a3 n13 n9 
+a1 08h17m54s #1 a2 08h18m20s #1 a3 08h18m25s -- n13 08h18m32s UQAM3 n9 08h19m44s 
+08h20m15s
+n15 n16 n17 n18 n12 n13 n9 
+n15 08h18m43s UQAM1 n16 08h18m59s UQAM1 n17 08h19m12s UQAM1 n18 08h19m25s UQAM1 n12 08h20m01s Grands-Batisseurs n13 08h21m32s UQAM3 n9 08h22m44s 
+08h23m29s
+n17 n16 
+n17 08h16m43s UQAM1 n16 08h16m56s 
+08h17m21s
+n12 n8 
+n12 08h15m57s UQAM1 n8 08h17m13s 
+08h17m46s
+n13 n12 n18 
+n13 08h11m20s Grands-Batisseurs n12 08h12m51s UQAM1 n18 08h13m27s 
+08h13m48s
+n9 n8 
+n9 08h18m23s Saint-Urbain n8 08h19m55s 
+08h20m38s
+n16 n17 n18 n12 
+n16 08h11m58s UQAM1 n17 08h12m11s UQAM1 n18 08h12m24s UQAM1 n12 08h13m00s 
+08h13m26s
+a1 a2 n12 n18 
+a1 08h18m27s #1 a2 08h19m20s -- n12 08h19m26s UQAM1 n18 08h20m02s 
+08h20m23s
+n12 n18 n17 
+n12 08h19m42s UQAM1 n18 08h20m18s UQAM1 n17 08h20m31s 
+08h20m49s
+n17 n18 n12 n13 n9 
+n17 08h12m26s UQAM1 n18 08h12m39s UQAM1 n12 08h13m15s Grands-Batisseurs n13 08h14m46s UQAM3 n9 08h15m58s 
+08h16m34s
+a2 n12 
+a2 08h12m11s -- n12 08h12m17s 
+08h12m50s
+n15 n16 n17 n18 
+n15 08h19m02s UQAM1 n16 08h19m18s UQAM1 n17 08h19m31s UQAM1 n18 08h19m44s 
+08h19m50s
+n8 n12 
+n8 08h13m33s UQAM1 n12 08h14m49s 
+08h14m50s
+a2 n12 n6 a1 
+a2 08h18m05s -- n12 08h18m11s Grands-Batisseurs n6 08h19m41s -- a1 08h19m50s 
+08h20m24s
+n17 n18 n12 
+n17 08h18m33s UQAM1 n18 08h18m46s UQAM1 n12 08h19m22s 
+08h19m49s
+n20 n19 n14 n13 n12 
+n20 08h12m58s UQAM4 n19 08h13m26s UQAM2 n14 08h14m54s Grands-Batisseurs n13 08h15m10s Grands-Batisseurs n12 08h16m41s 
+08h17m05s
+n5 n4 n3 n15 
+n5 08h10m35s Sherbrooke n4 08h11m46s Jeanne-Mance n3 08h12m32s UQAM1 n15 08h13m22s 
+08h13m37s
+a1 n6 n12 n18 n17 n16 n15 
+a1 08h20m04s -- n6 08h20m13s Grands-Batisseurs n12 08h21m43s UQAM1 n18 08h22m19s UQAM1 n17 08h22m32s UQAM1 n16 08h22m45s UQAM1 n15 08h23m01s 
+08h23m19s
+n8 n12 
+n8 08h18m51s UQAM1 n12 08h20m07s 
+08h20m41s
+a3 n13 n12 n6 n5 
+a3 08h18m06s -- n13 08h18m13s Grands-Batisseurs n12 08h19m44s Grands-Batisseurs n6 08h21m14s Sherbrooke n5 08h22m13s 
+08h22m40s
+n15 n16 n17 n18 n12 a2 
+n15 08h19m08s UQAM1 n16 08h19m24s UQAM1 n17 08h19m37s UQAM1 n18 08h19m50s UQAM1 n12 08h20m26s -- a2 08h20m32s 
+08h20m51s
+a2 n12 n13 n14 n19 n20 
+a2 08h11m43s -- n12 08h11m49s Grands-Batisseurs n13 08h13m20s Grands-Batisseurs n14 08h13m36s UQAM2 n19 08h15m04s UQAM4 n20 08h15m32s 
+08h16m12s
+n8 n12 a2 
+n8 08h12m27s UQAM1 n12 08h13m43s -- a2 08h13m49s 
+08h14m28s
+a3 n13 n12 n18 
+a3 08h17m29s -- n13 08h17m36s Grands-Batisseurs n12 08h19m07s UQAM1 n18 08h19m43s 
+08h20m14s
+n8 n12 a2 
+n8 08h12m51s UQAM1 n12 08h14m07s -- a2 08h14m13s 
+08h14m37s
+n12 
+n12 08h12m43s 
+08h12m57s
+n12 n6 a1 
+n12 08h11m22s Grands-Batisseurs n6 08h12m52s -- a1 08h13m01s 
+08h13m23s
+n8 n12 a2 a3 
+n8 08h16m13s UQAM1 n12 08h17m29s -- a2 08h17m35s #1 a3 08h18m25s 
+08h18m59s
+n12 a2 a3 
+n12 08h16m56s -- a2 08h17m02s #1 a3 08h17m25s 
+08h17m47s
+n12 a2 a3 
+n12 08h17m24s -- a2 08h17m30s #1 a3 08h18m25s 
+08h18m49s
+n18 n12 a2 a3 
+n18 08h15m37s UQAM1 n12 08h16m13s -- a2 08h16m19s #1 a3 08h16m25s 
+08h17m11s
+a1 a2 
+a1 08h15m57s #1 a2 08h16m20s 
+08h16m26s
+n15 n16 n17 n18 
+n15 08h15m10s UQAM1 n16 08h15m26s UQAM1 n17 08h15m39s UQAM1 n18 08h15m52s 
+08h16m32s
+n12 n6 a1 
+n12 08h16m41s Grands-Batisseurs n6 08h18m11s -- a1 08h18m20s 
+08h18m45s
+a1 a2 n12 
+a1 08h15m22s #1 a2 08h16m20s -- n12 08h16m26s 
+08h17m00s
+n18 n12 n6 n5 
+n18 08h16m43s UQAM1 n12 08h17m19s Grands-Batisseurs n6 08h18m49s Sherbrooke n5 08h19m48s 
+08h20m17s
+n8 n9 n13 a3 
+n8 08h11m20s Saint-Urbain n9 08h12m52s UQAM3 n13 08h14m04s -- a3 08h14m11s 
+08h14m51s
+n16 n17 n18 n12 n8 
+n16 08h18m27s UQAM1 n17 08h18m40s UQAM1 n18 08h18m53s UQAM1 n12 08h19m29s UQAM1 n8 08h20m45s 
+08h21m33s
+n15 n16 n17 n18 n12 n8 
+n15 08h12m36s UQAM1 n16 08h12m52s UQAM1 n17 08h13m05s UQAM1 n18 08h13m18s UQAM1 n12 08h13m54s UQAM1 n8 08h15m10s 
+08h15m53s
+n12 n8 
+n12 08h17m17s UQAM1 n8 08h18m33s 
+08h19m08s
+n9 n13 n12 a2 
+n9 08h20m14s UQAM3 n13 08h21m26s Grands-Batisseurs n12 08h22m57s -- a2 08h23m03s 
+08h23m45s
+a3 
+a3 08h19m31s 
+08h20m05s
+n12 n8 
+n12 08h11m34s UQAM1 n8 08h12m50s 
+08h13m23s
